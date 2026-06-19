@@ -3,9 +3,9 @@ export const tapPlaceComponent = {
     const ground = document.getElementById('ground')
     const prompt = document.getElementById('promptText')
 
-    const farmBtn = document.getElementById('farmBtn')
-    const cabinBtn = document.getElementById('cabinBtn')
-    const chaletBtn = document.getElementById('chaletBtn')
+    const Model_1_Btn = document.getElementById('Model1_Btn')
+    const Model_2_Btn = document.getElementById('Model2_Btn')
+    const Model_3_Btn = document.getElementById('Model3_Btn')
     const buttonPanel = document.getElementById('modelButtons')
 
     const scene = document.querySelector('a-scene')
@@ -15,84 +15,96 @@ export const tapPlaceComponent = {
     let fixedPosition = null
 
     const MODEL_CONFIG = {
-      farm: {
-        id: '#farmModel',
-        scale: 1,
+      farmhouse: {
+        id: '#FarmHouse_Model',
+        scale: 0.5,
         yOffset: 0,
         rotationY: 0,
       },
 
-      cabin: {
-        id: '#cabinModel',
-        scale: 2,
-        yOffset: 5,
+      car: {
+        id: '#Car_Model',
+        scale: 4,
+        yOffset: 0,
         rotationY: 0,
       },
 
-      chalet: {
-        id: '#chaletModel',
-        scale: 0.16,
+      tractor: {
+        id: '#Tactor_Model',
+        scale: 1,
         yOffset: 0,
         rotationY: 0,
       },
     }
 
-    function swapModel(config) {
-      if (!placedModel || !fixedPosition) return
+    function createAnimatedModel(config) {
+      const model = document.createElement('a-entity')
 
-      // Preserve current scale from pinch gesture
-      const currentScale = placedModel.getAttribute('scale')
-
-      if (placedModel.parentNode) {
-        placedModel.parentNode.removeChild(placedModel)
-      }
-
-      placedModel = document.createElement('a-entity')
-
-      placedModel.setAttribute(
+      model.setAttribute(
         'position',
         `${fixedPosition.x}
          ${fixedPosition.y + config.yOffset}
          ${fixedPosition.z}`
       )
 
-      placedModel.setAttribute(
+      model.setAttribute(
         'rotation',
         `0 ${config.rotationY} 0`
       )
 
-      placedModel.setAttribute(
-        'gltf-model',
-        config.id
-      )
+      model.setAttribute('gltf-model', config.id)
 
-      scene.appendChild(placedModel)
-
-      placedModel.addEventListener('model-loaded', () => {
-        // Apply model-specific scale
-        placedModel.setAttribute(
-          'scale',
-          `${config.scale} ${config.scale} ${config.scale}`
-        )
+      model.setAttribute('shadow', {
+        cast: true,
+        receive: true,
       })
 
-      placedModel.setAttribute('pinch-scale', '')
-      placedModel.setAttribute('two-finger-rotate', '')
+      model.setAttribute('pinch-scale', '')
+      model.setAttribute('one-finger-rotate', '')
+
+      // Start tiny for pop animation
+      model.setAttribute('visible', false)
+      model.setAttribute('scale', '0.0001 0.0001 0.0001')
+
+      model.addEventListener('model-loaded', () => {
+        model.setAttribute('visible', true)
+
+        model.setAttribute('animation', {
+          property: 'scale',
+          to: `${config.scale} ${config.scale} ${config.scale}`,
+          easing: 'easeOutElastic',
+          dur: 800,
+        })
+      })
+
+      return model
     }
 
-    farmBtn.addEventListener('click', () => {
-      console.log('Farm clicked')
-      swapModel(MODEL_CONFIG.farm)
+    function swapModel(config) {
+      if (!placedModel || !fixedPosition) return
+
+      if (placedModel.parentNode) {
+        placedModel.parentNode.removeChild(placedModel)
+      }
+
+      placedModel = createAnimatedModel(config)
+
+      scene.appendChild(placedModel)
+    }
+
+    Model_1_Btn.addEventListener('click', () => {
+      console.log('Farm House clicked')
+      swapModel(MODEL_CONFIG.farmhouse)
     })
 
-    cabinBtn.addEventListener('click', () => {
-      console.log('Cabin clicked')
-      swapModel(MODEL_CONFIG.cabin)
+    Model_2_Btn.addEventListener('click', () => {
+      console.log('Car clicked')
+      swapModel(MODEL_CONFIG.car)
     })
 
-    chaletBtn.addEventListener('click', () => {
-      console.log('Chalet clicked')
-      swapModel(MODEL_CONFIG.chalet)
+    Model_3_Btn.addEventListener('click', () => {
+      console.log('Tractor clicked')
+      swapModel(MODEL_CONFIG.tractor)
     })
 
     ground.addEventListener('click', (event) => {
@@ -108,34 +120,9 @@ export const tapPlaceComponent = {
         z: touchPoint.z,
       }
 
-      placedModel = document.createElement('a-entity')
-
-      placedModel.setAttribute(
-        'position',
-        `${fixedPosition.x}
-         ${fixedPosition.y + MODEL_CONFIG.farm.yOffset}
-         ${fixedPosition.z}`
+      placedModel = createAnimatedModel(
+        MODEL_CONFIG.farmhouse
       )
-
-      placedModel.setAttribute(
-        'rotation',
-        `0 ${MODEL_CONFIG.farm.rotationY} 0`
-      )
-
-      placedModel.setAttribute(
-        'gltf-model',
-        MODEL_CONFIG.farm.id
-      )
-
-      placedModel.setAttribute(
-        'scale',
-        `${MODEL_CONFIG.farm.scale}
-         ${MODEL_CONFIG.farm.scale}
-         ${MODEL_CONFIG.farm.scale}`
-      )
-
-      placedModel.setAttribute('pinch-scale', '')
-      placedModel.setAttribute('two-finger-rotate', '')
 
       scene.appendChild(placedModel)
 

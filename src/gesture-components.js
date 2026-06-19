@@ -39,27 +39,31 @@ AFRAME.registerComponent('pinch-scale', {
   },
 })
 
-AFRAME.registerComponent('two-finger-rotate', {
+AFRAME.registerComponent('one-finger-rotate', {
   init() {
-    let lastX = null
+    let isDragging = false
+    let lastX = 0
+
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true
+        lastX = e.touches[0].clientX
+      }
+    })
 
     window.addEventListener('touchmove', (e) => {
-      if (e.touches.length !== 2) return
+      if (!isDragging || e.touches.length !== 1) return
 
-      const currentX =
-        (e.touches[0].clientX +
-          e.touches[1].clientX) / 2
+      const currentX = e.touches[0].clientX
+      const deltaX = currentX - lastX
 
-      if (lastX !== null) {
-        this.el.object3D.rotation.y +=
-          (currentX - lastX) * 0.01
-      }
+      this.el.object3D.rotation.y += deltaX * 0.01
 
       lastX = currentX
     })
 
     window.addEventListener('touchend', () => {
-      lastX = null
+      isDragging = false
     })
   },
 })
