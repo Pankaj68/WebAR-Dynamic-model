@@ -1,147 +1,50 @@
+// Component that places cacti where the ground is clicked
+
 export const tapPlaceComponent = {
+  schema: {
+    min: {default: 6},
+    max: {default: 10},
+  },
   init() {
     const ground = document.getElementById('ground')
-    const prompt = document.getElementById('promptText')
+    this.prompt = document.getElementById('promptText')
+    
+    ground.addEventListener('click', (event) => {
+      // Dismiss the prompt text.
+      this.prompt.style.display = 'none'
+      
+      // Create new entity for the new object
+      const newElement = document.createElement('a-entity')
 
-    const farmBtn = document.getElementById('farmBtn')
-    const cabinBtn = document.getElementById('cabinBtn')
-    const chaletBtn = document.getElementById('chaletBtn')
-    const buttonPanel = document.getElementById('modelButtons')
+      // The raycaster gives a location of the touch in the scene
+      const touchPoint = event.detail.intersection.point
+      newElement.setAttribute('position', touchPoint)
 
-    const scene = document.querySelector('a-scene')
+      const randomYRotation = Math.random() * 360
+      newElement.setAttribute('rotation', `0 ${randomYRotation} 0`)
 
-    let placedModel = null
-    let placed = false
-    let fixedPosition = null
+      const randomScale = Math.floor(Math.random() * (Math.floor(this.data.max) - Math.ceil(this.data.min)) + Math.ceil(this.data.min))
 
-    const MODEL_CONFIG = {
-      farm: {
-        id: '#farmModel',
-        scale: 1,
-        yOffset: 0,
-        rotationY: 0,
-      },
+      newElement.setAttribute('visible', 'false')
+      newElement.setAttribute('scale', '0.0001 0.0001 0.0001')
 
-      cabin: {
-        id: '#cabinModel',
-        scale: 2,
-        yOffset: 5,
-        rotationY: 0,
-      },
-
-      chalet: {
-        id: '#chaletModel',
-        scale: 0.16,
-        yOffset: 0,
-        rotationY: 0,
-      },
-    }
-
-    function swapModel(config) {
-      if (!placedModel || !fixedPosition) return
-
-      // Preserve current scale from pinch gesture
-      const currentScale = placedModel.getAttribute('scale')
-
-      if (placedModel.parentNode) {
-        placedModel.parentNode.removeChild(placedModel)
-      }
-
-      placedModel = document.createElement('a-entity')
-
-      placedModel.setAttribute(
-        'position',
-        `${fixedPosition.x}
-         ${fixedPosition.y + config.yOffset}
-         ${fixedPosition.z}`
-      )
-
-      placedModel.setAttribute(
-        'rotation',
-        `0 ${config.rotationY} 0`
-      )
-
-      placedModel.setAttribute(
-        'gltf-model',
-        config.id
-      )
-
-      scene.appendChild(placedModel)
-
-      placedModel.addEventListener('model-loaded', () => {
-        // Apply model-specific scale
-        placedModel.setAttribute(
-          'scale',
-          `${config.scale} ${config.scale} ${config.scale}`
-        )
+      newElement.setAttribute('shadow', {
+        receive: false,
       })
 
-      placedModel.setAttribute('pinch-scale', '')
-      placedModel.setAttribute('two-finger-rotate', '')
-    }
+      newElement.setAttribute('gltf-model', '#cactusModel')
+      this.el.sceneEl.appendChild(newElement)
 
-    farmBtn.addEventListener('click', () => {
-      console.log('Farm clicked')
-      swapModel(MODEL_CONFIG.farm)
-    })
-
-    cabinBtn.addEventListener('click', () => {
-      console.log('Cabin clicked')
-      swapModel(MODEL_CONFIG.cabin)
-    })
-
-    chaletBtn.addEventListener('click', () => {
-      console.log('Chalet clicked')
-      swapModel(MODEL_CONFIG.chalet)
-    })
-
-    ground.addEventListener('click', (event) => {
-      if (placed) return
-
-      prompt.style.display = 'none'
-
-      const touchPoint = event.detail.intersection.point
-
-      fixedPosition = {
-        x: touchPoint.x,
-        y: touchPoint.y,
-        z: touchPoint.z,
-      }
-
-      placedModel = document.createElement('a-entity')
-
-      placedModel.setAttribute(
-        'position',
-        `${fixedPosition.x}
-         ${fixedPosition.y + MODEL_CONFIG.farm.yOffset}
-         ${fixedPosition.z}`
-      )
-
-      placedModel.setAttribute(
-        'rotation',
-        `0 ${MODEL_CONFIG.farm.rotationY} 0`
-      )
-
-      placedModel.setAttribute(
-        'gltf-model',
-        MODEL_CONFIG.farm.id
-      )
-
-      placedModel.setAttribute(
-        'scale',
-        `${MODEL_CONFIG.farm.scale}
-         ${MODEL_CONFIG.farm.scale}
-         ${MODEL_CONFIG.farm.scale}`
-      )
-
-      placedModel.setAttribute('pinch-scale', '')
-      placedModel.setAttribute('two-finger-rotate', '')
-
-      scene.appendChild(placedModel)
-
-      buttonPanel.style.display = 'block'
-
-      placed = true
+      newElement.addEventListener('model-loaded', () => {
+        // Once the model is loaded, we are ready to show it popping in using an animation
+        newElement.setAttribute('visible', 'true')
+        newElement.setAttribute('animation', {
+          property: 'scale',
+          to: `${randomScale} ${randomScale} ${randomScale}`,
+          easing: 'easeOutElastic',
+          dur: 800,
+        })
+      })
     })
   },
 }
