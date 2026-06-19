@@ -22,6 +22,20 @@
   <script src="https://cdn.jsdelivr.net/npm/@8thwall/engine-binary@1/dist/xr.js" crossorigin="anonymous" async="true" data-preload-chunks="slam"></script>
 </head>
 
+<div id="modelButtons" style="
+  display:none;
+  position:fixed;
+  bottom:40px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:1000;">
+
+  <button id="farmBtn">House-1</button>
+  <button id="cabinBtn">House-2</button>
+  <button id="chaletBtn">House-3</button>
+
+</div>
+
 <body>
 <script src="bundle.js"></script>
 <!-- Copyright (c) 2022 8th Wall, Inc. -->
@@ -50,7 +64,25 @@
   <!-- We can define assets here to be loaded when A-Frame initializes -->
   <a-assets>
     <img id="groundTex" src="assets/sand.jpg">
-    <a-asset-item id="cactusModel" src="assets/cactus.glb"></a-asset-item>
+    <!-- <a-asset-item id="cactusModel" src="assets/cactus.glb"></a-asset-item> -->
+
+     <a-asset-item
+    id="farmModel"
+    src="https://my-addressables-bucket-2.s3.eu-north-1.amazonaws.com/WebAR/Farm%20house.glb">
+  </a-asset-item>
+
+  <a-asset-item
+    id="cabinModel"
+    src="https://my-addressables-bucket-2.s3.eu-north-1.amazonaws.com/WebAR/cabin.glb">
+  </a-asset-item>
+
+  <a-asset-item
+    id="chaletModel"
+    src="https://my-addressables-bucket-2.s3.eu-north-1.amazonaws.com/WebAR/Chalet.glb">
+  </a-asset-item>
+
+
+
   </a-assets>
 
   <!-- The raycaster will emit mouse events on scene objects specified with the cantap class -->
