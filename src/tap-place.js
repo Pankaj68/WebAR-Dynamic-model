@@ -7,6 +7,7 @@ export const tapPlaceComponent = {
     const Model_2_Btn = document.getElementById('Model2_Btn')
     const Model_3_Btn = document.getElementById('Model3_Btn')
     const buttonPanel = document.getElementById('modelButtons')
+    const resetBtn = document.getElementById('resetBtn')
 
     const scene = document.querySelector('a-scene')
 
@@ -80,6 +81,7 @@ export const tapPlaceComponent = {
       return model
     }
 
+    // Function to swap models while keeping the same position
     function swapModel(config) {
       if (!placedModel || !fixedPosition) return
 
@@ -92,6 +94,7 @@ export const tapPlaceComponent = {
       scene.appendChild(placedModel)
     }
 
+    // Model selection button logic
     Model_1_Btn.addEventListener('click', () => {
       console.log('Farm House clicked')
       swapModel(MODEL_CONFIG.farmhouse)
@@ -107,6 +110,41 @@ export const tapPlaceComponent = {
       swapModel(MODEL_CONFIG.tractor)
     })
 
+    // Reset button logic
+    resetBtn.addEventListener('click', () => {
+      if (!placedModel) return
+
+      placedModel.setAttribute('animation__drop', {
+        property: 'position',
+        to: `${fixedPosition.x} -3 ${fixedPosition.z}`,
+        dur: 1000,
+        easing: 'easeInOutCubic',
+      })
+
+      placedModel.setAttribute('animation__shrink', {
+        property: 'scale',
+        to: '0.01 0.01 0.01',
+        dur: 1000,
+        easing: 'easeInOutQuad',
+      })
+
+      setTimeout(() => {
+        if (placedModel.parentNode) {
+          placedModel.parentNode.removeChild(placedModel)
+        }
+
+        placedModel = null
+        fixedPosition = null
+        placed = false
+
+        buttonPanel.style.display = 'none'
+        resetBtn.style.display = 'none'
+        prompt.style.display = 'block'
+      }, 1000)
+    })
+
+
+    // Tap to place logic
     ground.addEventListener('click', (event) => {
       if (placed) return
 
@@ -127,6 +165,7 @@ export const tapPlaceComponent = {
       scene.appendChild(placedModel)
 
       buttonPanel.style.display = 'block'
+      resetBtn.style.display = 'block'
 
       placed = true
     })
